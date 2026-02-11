@@ -91,6 +91,14 @@ createdb laravel_vectors
 psql laravel_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 ```
 
+**On Laravel Forge / managed servers:** The Laravel DB user often lacks superuser privileges. Run the extension creation as the `postgres` superuser *before* migrations:
+
+```bash
+sudo -u postgres psql -d laravel_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+```
+
+(Use your actual vector database name if different from `laravel_vectors`.)
+
 If the extension is not installed, see [Installing pgvector](#installing-pgvector) below.
 
 ### 5. Run migrations
@@ -125,7 +133,21 @@ Then open `http://localhost:8000` in your browser. Or use [Laravel Herd](https:/
 
 ## Installing pgvector
 
-If migrations fail with an error about the `vector` extension, install pgvector for your PostgreSQL version.
+If migrations fail with an error about the `vector` extension, follow the steps below.
+
+### Permission denied (must be superuser)
+
+If you see `permission denied to create extension "vector"` / `Must be superuser to create this extension` (e.g. on **Laravel Forge** or managed PostgreSQL), the Laravel DB user lacks superuser privileges. Create the extension as the `postgres` superuser *before* running migrations:
+
+```bash
+sudo -u postgres psql -d YOUR_DATABASE_NAME -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+```
+
+Replace `YOUR_DATABASE_NAME` with your vector database (e.g. `laravel_vectors` or the value of `VECTOR_DB_DATABASE` in `.env`). If you use a single database for both app and vectors, use that database name. Then run `php artisan migrate` again.
+
+### Extension not installed (control file missing)
+
+If you see an error about the extension control file, install the pgvector package for your PostgreSQL version:
 
 **macOS (Homebrew)**
 

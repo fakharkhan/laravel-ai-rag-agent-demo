@@ -31,7 +31,13 @@ createdb laravel_vectors
 psql laravel_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
 ```
 
-Or let the migrations create the extension (migrations use the `vector` connection).
+**Laravel Forge / managed PostgreSQL:** If you see `permission denied to create extension "vector"`, the Laravel DB user lacks superuser privileges. Run as the `postgres` superuser before migrations:
+
+```bash
+sudo -u postgres psql -d laravel_vectors -c 'CREATE EXTENSION IF NOT EXISTS vector;'
+```
+
+On local/dev, migrations can create the extension; on Forge or managed servers, create it manually as above.
 
 ## 2. Migrations
 
