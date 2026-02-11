@@ -42,6 +42,28 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'routes' => [
+                'admin' => [
+                    'knowledgeFiles' => [
+                        'index' => route('admin.knowledge-files.index'),
+                        'store' => route('admin.knowledge-files.store'),
+                        'destroyPath' => '/admin/knowledge-files/', // + id, method DELETE
+                        'reprocessPath' => '/admin/knowledge-files/', // + id + '/reprocess', method POST
+                    ],
+                    'chatConfig' => [
+                        'index' => route('admin.chat-config.index'),
+                        'update' => route('admin.chat-config.update'),
+                    ],
+                ],
+                'chat' => [
+                    'index' => route('chat.index'),
+                    'stream' => route('chat.stream'),
+                ],
+            ],
         ];
     }
 }

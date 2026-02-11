@@ -1,5 +1,5 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, LayoutGrid, MessageSquare, Settings, Upload } from 'lucide-react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -16,28 +16,30 @@ import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
-
 const footerNavItems: NavItem[] = [
     {
-        title: 'Repository',
-        href: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        href: 'https://laravel.com/docs/starter-kits#react',
+        title: 'fakharkhan.com',
+        href: 'https://fakharkhan.com',
         icon: BookOpen,
     },
 ];
 
 export function AppSidebar() {
+    const { props } = usePage<{ routes?: { admin?: { knowledgeFiles?: { index?: string }; chatConfig?: { index?: string } }; chat?: { index?: string } } }>();
+    const routes = props.routes;
+    const mainNavItems: NavItem[] = [
+        { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
+    ];
+    if (routes?.admin?.knowledgeFiles?.index) {
+        mainNavItems.push({ title: 'Knowledge files', href: routes.admin.knowledgeFiles.index, icon: Upload });
+    }
+    if (routes?.admin?.chatConfig?.index) {
+        mainNavItems.push({ title: 'Chat config', href: routes.admin.chatConfig.index, icon: Settings });
+    }
+    if (routes?.chat?.index) {
+        mainNavItems.push({ title: 'Chat', href: routes.chat.index, icon: MessageSquare });
+    }
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
