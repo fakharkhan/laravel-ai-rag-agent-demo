@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
+import { MessageSquare } from 'lucide-react';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -15,11 +15,12 @@ export default function AuthSimpleLayout({
                     <div className="flex flex-col items-center gap-4">
                         <Link
                             href={home()}
-                            className="flex flex-col items-center gap-2 font-medium"
+                            className="flex flex-col items-center gap-2 font-medium text-foreground no-underline"
                         >
-                            <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-md">
-                                <AppLogoIcon className="size-9 fill-current text-[var(--foreground)] dark:text-white" />
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-600 text-white dark:bg-indigo-500">
+                                <MessageSquare className="size-6" />
                             </div>
+                            <span className="text-sm font-semibold">Chat Assistant</span>
                             <span className="sr-only">{title}</span>
                         </Link>
 
