@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Ai\ChatAgent;
 use App\Models\ChatConfig;
 use App\Models\DocumentChunk;
+use App\Models\KnowledgeFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -32,10 +33,10 @@ class ChatController extends Controller
 
         $message = $request->input('message');
         $memoryEnabled = $request->boolean('memory_enabled');
-        $config = ChatConfig::current();
+        $config = ChatConfig::forUser($request->user());
 
         try {
-            $context = $this->getRagContext($message);
+            $context = $this->getRagContext($message, $request->user());
             $instructions = $this->buildInstructions($config->system_prompt ?? '', $context);
 
             if ($memoryEnabled && $request->user()) {
@@ -81,15 +82,24 @@ class ChatController extends Controller
         return 'Chat is temporarily unavailable. Please try again or check the server logs.';
     }
 
-    protected function getRagContext(string $query): string
+    protected function getRagContext(string $query, \App\Models\User $user): string
     {
+        $knowledgeFileIds = KnowledgeFile::query()
+            ->where('user_id', $user->id)
+            ->pluck('id')
+            ->all();
+
+        if ($knowledgeFileIds === []) {
+            return 'No knowledge base content has been uploaded yet.';
+        }
+
         $embeddingResponse = Embeddings::for([$query])->generate();
         $queryEmbedding = $embeddingResponse->embeddings[0] ?? [];
         if ($queryEmbedding === []) {
             return 'No knowledge base content has been uploaded yet.';
         }
 
-        $nearest = DocumentChunk::nearestTo($queryEmbedding, 5)->get();
+        $nearest = DocumentChunk::nearestTo($queryEmbedding, 5, $knowledgeFileIds)->get();
         if ($nearest->isEmpty()) {
             return 'No knowledge base content has been uploaded yet.';
         }

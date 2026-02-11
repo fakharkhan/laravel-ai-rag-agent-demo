@@ -5,16 +5,22 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreKnowledgeFileRequest;
 use App\Jobs\ProcessKnowledgeFileJob;
+use App\Models\DocumentChunk;
 use App\Models\KnowledgeFile;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class KnowledgeFileController extends Controller
 {
-    public function index(): Response
+    use AuthorizesRequests;
+
+    public function index(Request $request): Response
     {
         $files = KnowledgeFile::query()
+            ->where('user_id', $request->user()->id)
             ->latest()
             ->get();
 
@@ -26,10 +32,12 @@ class KnowledgeFileController extends Controller
     public function store(StoreKnowledgeFileRequest $request): RedirectResponse
     {
         $file = $request->file('file');
-        $path = $file->store('knowledge', 'local');
+        $userId = $request->user()->id;
+        $path = $file->store("knowledge/{$userId}", 'local');
         $name = $file->getClientOriginalName();
 
         $knowledgeFile = KnowledgeFile::query()->create([
+            'user_id' => $userId,
             'name' => $name,
             'path' => $path,
             'disk' => 'local',
@@ -44,8 +52,10 @@ class KnowledgeFileController extends Controller
 
     public function destroy(KnowledgeFile $knowledgeFile): RedirectResponse
     {
+        $this->authorize('delete', $knowledgeFile);
+
         $knowledgeFile->delete();
-        \App\Models\DocumentChunk::on('vector')
+        DocumentChunk::on('vector')
             ->where('knowledge_file_id', $knowledgeFile->id)
             ->delete();
 
@@ -55,6 +65,8 @@ class KnowledgeFileController extends Controller
 
     public function reprocess(KnowledgeFile $knowledgeFile): RedirectResponse
     {
+        $this->authorize('update', $knowledgeFile);
+
         if (! $knowledgeFile->isCompleted() && ! $knowledgeFile->isFailed()) {
             return redirect()->route('admin.knowledge-files.index')
                 ->with('error', 'File is still processing.');

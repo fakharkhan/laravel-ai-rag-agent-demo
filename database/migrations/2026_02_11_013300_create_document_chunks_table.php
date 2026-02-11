@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::connection('vector')->create('document_chunks', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('knowledge_file_id');
@@ -31,6 +35,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::connection('vector')->dropIfExists('document_chunks');
     }
 };

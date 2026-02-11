@@ -15,6 +15,7 @@ class KnowledgeFile extends Model
     public const string StatusFailed = 'failed';
 
     protected $fillable = [
+        'user_id',
         'name',
         'path',
         'disk',
@@ -22,6 +23,11 @@ class KnowledgeFile extends Model
         'error_message',
         'chunks_count',
     ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected function casts(): array
     {

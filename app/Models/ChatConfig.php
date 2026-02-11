@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class ChatConfig extends Model
 {
     protected $fillable = [
+        'user_id',
         'system_prompt',
         'provider',
         'model',
     ];
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public static function defaultSystemPrompt(): string
     {
@@ -23,18 +29,15 @@ Rules:
 - If asked about something outside the knowledge base (e.g. unrelated tech or general advice), briefly answer if you can, but note that your primary expertise here is the provided context about Fakhar Khan and SoftPyramid.';
     }
 
-    public static function current(): self
+    public static function forUser(\App\Models\User $user): self
     {
-        $config = static::query()->first();
-
-        if (! $config) {
-            $config = static::query()->create([
+        return static::query()->firstOrCreate(
+            ['user_id' => $user->id],
+            [
                 'system_prompt' => static::defaultSystemPrompt(),
                 'provider' => 'openai',
                 'model' => 'gpt-4o-mini',
-            ]);
-        }
-
-        return $config;
+            ]
+        );
     }
 }

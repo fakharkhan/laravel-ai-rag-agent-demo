@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('knowledge_files', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('path');
             $table->string('disk')->default('local');

@@ -2,6 +2,7 @@
 
 use App\Models\ChatConfig;
 use App\Models\KnowledgeFile;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Laravel\Fortify\Features;
@@ -12,10 +13,14 @@ Route::get('/', function () {
     ]);
 })->name('home');
 
-Route::get('dashboard', function () {
-    $knowledgeFilesCount = KnowledgeFile::query()->count();
-    $knowledgeFilesCompleted = KnowledgeFile::query()->where('status', KnowledgeFile::StatusCompleted)->count();
-    $config = ChatConfig::current();
+Route::get('dashboard', function (Request $request) {
+    $userId = $request->user()->id;
+    $knowledgeFilesCount = KnowledgeFile::query()->where('user_id', $userId)->count();
+    $knowledgeFilesCompleted = KnowledgeFile::query()
+        ->where('user_id', $userId)
+        ->where('status', KnowledgeFile::StatusCompleted)
+        ->count();
+    $config = ChatConfig::forUser($request->user());
 
     return Inertia::render('dashboard', [
         'stats' => [

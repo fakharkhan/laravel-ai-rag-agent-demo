@@ -26,12 +26,21 @@ class DocumentChunk extends Model
         ];
     }
 
-    public static function nearestTo(vector|array $embedding, int $limit = 5): \Illuminate\Database\Eloquent\Builder
+    public function knowledgeFile(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(KnowledgeFile::class);
+    }
+
+    public static function nearestTo(vector|array $embedding, int $limit = 5, ?array $knowledgeFileIds = null): \Illuminate\Database\Eloquent\Builder
     {
         $vector = is_array($embedding) ? new Vector($embedding) : $embedding;
 
-        return static::query()
-            ->nearestNeighbors('embedding', $vector, Distance::Cosine)
-            ->limit($limit);
+        $query = static::query()->nearestNeighbors('embedding', $vector, Distance::Cosine);
+
+        if ($knowledgeFileIds !== null && $knowledgeFileIds !== []) {
+            $query->whereIn('knowledge_file_id', $knowledgeFileIds);
+        }
+
+        return $query->limit($limit);
     }
 }
