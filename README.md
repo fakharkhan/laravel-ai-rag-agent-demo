@@ -9,6 +9,7 @@ A Laravel application that lets you upload knowledge files, embed them with Open
 - **Chat configuration** – Configure the system prompt and OpenAI model (e.g. `gpt-4o`, `gpt-4o-mini`) in the admin panel.
 - **RAG chat** – Chat with an assistant that uses your uploaded documents as context (retrieval-augmented generation).
 - **Streaming responses** – Chat replies stream in real time.
+- **Per-user data** – Each registered user has their own knowledge base and chat configuration; data is isolated by account.
 
 ## Requirements
 
@@ -23,7 +24,7 @@ A Laravel application that lets you upload knowledge files, embed them with Open
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/laravel-ai-rag-agent-demo.git
+git clone https://github.com/fakharkhan/laravel-ai-rag-agent-demo.git
 cd laravel-ai-rag-agent-demo
 ```
 
@@ -181,15 +182,17 @@ Then run `php artisan migrate` again.
 
 ## Usage
 
-1. **Register or log in** at the app URL.
+1. **Register or log in** at the app URL. Each account has its own workspace.
 2. **Knowledge files** (sidebar → “Knowledge files”):
    - Upload `.txt`, `.md`, or `.csv` files (max 10 MB).
+   - Files are private to your account.
    - Wait until status is **completed** (ensure `php artisan queue:work` is running if you use the queue).
 3. **Chat config** (sidebar → “Chat config”):
    - Set the **system prompt** and choose an **OpenAI model** (e.g. `gpt-4o-mini`).
+   - Settings are per-user.
    - Save.
 4. **Chat** (sidebar → “Chat”):
-   - Ask questions; the assistant uses your uploaded knowledge when relevant.
+   - Ask questions; the assistant uses only your uploaded knowledge when relevant.
 
 ---
 

@@ -69,7 +69,7 @@ export default function Welcome({
                             </span>
                         </h1>
                         <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-                            Upload documents, configure your assistant, and get answers grounded in your own content. Built with Laravel, OpenAI, and PostgreSQL.
+                            Upload documents, configure your assistant, and get answers grounded in your own content. Each account has its own private knowledge base and chat settings.
                         </p>
                         {!auth.user && (
                             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -98,7 +98,7 @@ export default function Welcome({
                                 Upload knowledge
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Add .txt, .md, or .csv files. They’re chunked and embedded so the assistant can search and cite your content.
+                                Add .txt, .md, or .csv files to your personal library. They’re chunked and embedded so the assistant can search and cite your content.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
@@ -109,7 +109,7 @@ export default function Welcome({
                                 Configure the assistant
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Set the system prompt and choose the OpenAI model. One place to control tone and behavior.
+                                Set the system prompt and choose the OpenAI model. Your settings are private to your account.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
@@ -130,7 +130,7 @@ export default function Welcome({
                             Ready to try it?
                         </h2>
                         <p className="mx-auto mt-3 max-w-xl text-slate-300">
-                            Sign in or register, upload a few documents, then start chatting.
+                            Sign in or register to get your own workspace. Upload documents and start chatting.
                         </p>
                         {!auth.user && (
                             <div className="mt-6">
@@ -147,7 +147,7 @@ export default function Welcome({
 
                 <footer className="mt-24 border-t border-slate-200 py-8 dark:border-slate-800">
                     <div className="mx-auto max-w-5xl px-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                        Laravel AI RAG Chat Assistant · OpenAI &amp; PostgreSQL (pgvector)
+                        Chat Assistant · Laravel · OpenAI · PostgreSQL (pgvector)
                     </div>
                 </footer>
             </div>
