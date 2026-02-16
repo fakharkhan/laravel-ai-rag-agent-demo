@@ -158,7 +158,18 @@ export default function Welcome({
 
                 <footer className="mt-24 border-t border-slate-200 py-8 dark:border-slate-800">
                     <div className="mx-auto max-w-5xl px-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                        Chat Assistant · Laravel · OpenAI · PostgreSQL (pgvector)
+                        <p>Chat Assistant · Laravel · OpenAI · PostgreSQL (pgvector)</p>
+                        <p className="mt-2">
+                            Powered by{' '}
+                            <a
+                                href="https://softpyramid.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="font-medium text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
+                            >
+                                SOFT PYRAMID LLC
+                            </a>
+                        </p>
                     </div>
                 </footer>
             </div>
