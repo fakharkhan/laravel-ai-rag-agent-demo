@@ -20,15 +20,17 @@ class StoreKnowledgeFileRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'file' => ['required', 'file', 'mimes:txt,md,csv', 'max:10240'],
+            'files' => ['required', 'array'],
+            'files.*' => ['required', 'file', 'mimes:txt,md,csv,pdf', 'max:10240'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'file.mimes' => 'The file must be a .txt, .md, or .csv file.',
-            'file.max' => 'The file may not be greater than 10 MB.',
+            'files.required' => 'Please select at least one file.',
+            'files.*.mimes' => 'Each file must be a .txt, .md, .csv, or .pdf file.',
+            'files.*.max' => 'Each file may not be greater than 10 MB.',
         ];
     }
 }

@@ -61,6 +61,7 @@ class HandleInertiaRequests extends Middleware
                 ],
                 'chat' => [
                     'index' => route('chat.index'),
+                    'conversations' => route('chat.conversations'),
                     'stream' => route('chat.stream'),
                 ],
             ],

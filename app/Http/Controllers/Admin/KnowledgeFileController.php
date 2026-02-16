@@ -31,23 +31,30 @@ class KnowledgeFileController extends Controller
 
     public function store(StoreKnowledgeFileRequest $request): RedirectResponse
     {
-        $file = $request->file('file');
         $userId = $request->user()->id;
-        $path = $file->store("knowledge/{$userId}", 'local');
-        $name = $file->getClientOriginalName();
+        $files = $request->file('files');
 
-        $knowledgeFile = KnowledgeFile::query()->create([
-            'user_id' => $userId,
-            'name' => $name,
-            'path' => $path,
-            'disk' => 'local',
-            'status' => KnowledgeFile::StatusPending,
-        ]);
+        foreach ($files as $file) {
+            $path = $file->store("knowledge/{$userId}", 'local');
+            $name = $file->getClientOriginalName();
 
-        ProcessKnowledgeFileJob::dispatch($knowledgeFile);
+            $knowledgeFile = KnowledgeFile::query()->create([
+                'user_id' => $userId,
+                'name' => $name,
+                'path' => $path,
+                'disk' => 'local',
+                'status' => KnowledgeFile::StatusPending,
+            ]);
+
+            ProcessKnowledgeFileJob::dispatch($knowledgeFile);
+        }
+
+        $count = count($files);
 
         return redirect()->route('admin.knowledge-files.index')
-            ->with('success', 'File uploaded. Embedding is being processed.');
+            ->with('success', $count === 1
+                ? 'File uploaded. Embedding is being processed.'
+                : "{$count} files uploaded. Embeddings are being processed.");
     }
 
     public function destroy(KnowledgeFile $knowledgeFile): RedirectResponse

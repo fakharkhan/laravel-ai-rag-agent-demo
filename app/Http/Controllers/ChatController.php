@@ -8,6 +8,7 @@ use App\Models\DocumentChunk;
 use App\Models\KnowledgeFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -19,9 +20,83 @@ use function Laravel\Ai\agent;
 
 class ChatController extends Controller
 {
-    public function index(): InertiaResponse
+    public function index(Request $request): InertiaResponse
     {
-        return Inertia::render('chat/Index');
+        $user = $request->user();
+        $conversations = $this->getConversationsForUser($user->id);
+        $requestedConversationId = $request->query('conversation');
+        $messages = [];
+        $currentConversationId = null;
+
+        if ($requestedConversationId) {
+            $messages = $this->getMessagesForConversation($requestedConversationId, $user->id);
+            if ($messages !== [] || $this->conversationBelongsToUser($requestedConversationId, $user->id)) {
+                $currentConversationId = $requestedConversationId;
+            }
+        }
+
+        return Inertia::render('chat/Index', [
+            'conversations' => $conversations,
+            'currentConversationId' => $currentConversationId,
+            'messages' => $messages,
+        ]);
+    }
+
+    /**
+     * @return array<int, array{id: string, title: string, updated_at: string}>
+     */
+    protected function getConversationsForUser(int $userId): array
+    {
+        return DB::table('agent_conversations')
+            ->where('user_id', $userId)
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get(['id', 'title', 'updated_at'])
+            ->map(fn ($row) => [
+                'id' => $row->id,
+                'title' => $row->title,
+                'updated_at' => $row->updated_at,
+            ])
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @return array<int, array{role: string, content: string}>
+     */
+    protected function conversationBelongsToUser(string $conversationId, int $userId): bool
+    {
+        return DB::table('agent_conversations')
+            ->where('id', $conversationId)
+            ->where('user_id', $userId)
+            ->exists();
+    }
+
+    protected function getMessagesForConversation(string $conversationId, int $userId): array
+    {
+        if (! $this->conversationBelongsToUser($conversationId, $userId)) {
+            return [];
+        }
+
+        $rows = DB::table('agent_conversation_messages')
+            ->where('conversation_id', $conversationId)
+            ->where('user_id', $userId)
+            ->whereIn('role', ['user', 'assistant'])
+            ->orderBy('created_at')
+            ->get(['role', 'content']);
+
+        return $rows->map(fn ($row) => [
+            'role' => $row->role,
+            'content' => $row->content ?? '',
+        ])->values()->all();
+    }
+
+    public function conversations(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $conversations = $this->getConversationsForUser($user->id);
+
+        return response()->json(['conversations' => $conversations]);
     }
 
     public function stream(Request $request): Response|JsonResponse|StreamableAgentResponse
@@ -29,20 +104,36 @@ class ChatController extends Controller
         $request->validate([
             'message' => ['required', 'string', 'max:10000'],
             'memory_enabled' => ['sometimes', 'boolean'],
+            'conversation_id' => ['sometimes', 'nullable', 'string', 'uuid'],
         ]);
 
         $message = $request->input('message');
         $memoryEnabled = $request->boolean('memory_enabled');
-        $config = ChatConfig::forUser($request->user());
+        $conversationId = $request->input('conversation_id');
+        $user = $request->user();
+        $config = ChatConfig::forUser($user);
+
+        if ($conversationId && $user) {
+            $exists = DB::table('agent_conversations')
+                ->where('id', $conversationId)
+                ->where('user_id', $user->id)
+                ->exists();
+            if (! $exists) {
+                $conversationId = null;
+            }
+        }
 
         try {
-            $context = $this->getRagContext($message, $request->user());
+            $context = $this->getRagContext($message, $user);
             $instructions = $this->buildInstructions($config->system_prompt ?? '', $context);
 
-            if ($memoryEnabled && $request->user()) {
-                $agent = (new ChatAgent($instructions))
-                    ->continueLastConversation($request->user());
-
+            if ($memoryEnabled && $user) {
+                $agent = new ChatAgent($instructions);
+                if ($conversationId) {
+                    $agent->continue($conversationId, $user);
+                } else {
+                    $agent->forUser($user);
+                }
                 $stream = $agent->stream($message, provider: $config->provider, model: $config->model);
             } else {
                 $stream = agent($instructions, [], [])

@@ -2,14 +2,27 @@
 
 A Laravel application that lets you upload knowledge files, embed them with OpenAI, store vectors in PostgreSQL (pgvector), and chat with an AI assistant that answers using your content. Built with the [Laravel AI SDK](https://laravel.com/ai), [Inertia.js](https://inertiajs.com/) (React), and [pgvector](https://github.com/pgvector/pgvector).
 
+## Tech Stack
+
+- **Backend:** Laravel 12, Laravel AI SDK, Laravel Fortify
+- **Frontend:** Inertia.js v2, React 19, Tailwind CSS v4, Radix UI, Lucide icons
+- **Vector DB:** PostgreSQL with pgvector extension
+- **AI:** OpenAI (embeddings + chat)
+
 ## Features
 
-- **Knowledge base upload** – Upload `.txt`, `.md`, or `.csv` files; they are chunked and embedded in the background.
+- **Knowledge base upload** – Upload `.txt`, `.md`, `.csv`, or `.pdf` files; they are chunked and embedded in the background.
 - **Vector store** – Embeddings are stored in PostgreSQL using the pgvector extension for semantic search.
 - **Chat configuration** – Configure the system prompt and OpenAI model (e.g. `gpt-4o`, `gpt-4o-mini`) in the admin panel.
 - **RAG chat** – Chat with an assistant that uses your uploaded documents as context (retrieval-augmented generation).
 - **Streaming responses** – Chat replies stream in real time.
+- **Conversation history** – Create and manage multiple chat conversations; switch between threads.
+- **Dashboard** – Overview of knowledge files, chat model, and quick links to manage your workspace.
+- **Reprocess files** – Re-embed knowledge files when needed without re-uploading.
 - **Per-user data** – Each registered user has their own knowledge base and chat configuration; data is isolated by account.
+- **Account settings** – Profile management, password reset, and optional two-factor authentication (Fortify).
+- **Appearance** – Light/dark mode toggle in settings.
+- **Landing page** – Modern RAG-focused welcome page with clear value proposition.
 
 ## Requirements
 
@@ -130,6 +143,12 @@ php artisan serve
 
 Then open `http://localhost:8000` in your browser. Or use [Laravel Herd](https://herd.laravel.com/), [Valet](https://laravel.com/docs/valet), or your preferred setup.
 
+**Development mode** – Run server, queue worker, logs, and Vite together:
+
+```bash
+composer dev
+```
+
 ---
 
 ## Installing pgvector
@@ -184,7 +203,7 @@ Then run `php artisan migrate` again.
 
 1. **Register or log in** at the app URL. Each account has its own workspace.
 2. **Knowledge files** (sidebar → “Knowledge files”):
-   - Upload `.txt`, `.md`, or `.csv` files (max 10 MB).
+   - Upload `.txt`, `.md`, `.csv`, or `.pdf` files (max 10 MB).
    - Files are private to your account.
    - Wait until status is **completed** (ensure `php artisan queue:work` is running if you use the queue).
 3. **Chat config** (sidebar → “Chat config”):

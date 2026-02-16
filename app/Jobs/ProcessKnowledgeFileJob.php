@@ -9,6 +9,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Ai\Embeddings;
 use Pgvector\Laravel\Vector;
+use Smalot\PdfParser\Parser as PdfParser;
 
 class ProcessKnowledgeFileJob implements ShouldQueue
 {
@@ -84,12 +85,13 @@ class ProcessKnowledgeFileJob implements ShouldQueue
             throw new \RuntimeException("File not found: {$path}");
         }
 
-        $content = Storage::disk($disk)->get($path);
+        $fullPath = Storage::disk($disk)->path($path);
         $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
         return match ($extension) {
-            'txt', 'md', 'markdown', 'csv' => $content,
-            default => throw new \RuntimeException("Unsupported file type: .{$extension}. Use .txt, .md, or .csv"),
+            'txt', 'md', 'markdown', 'csv' => Storage::disk($disk)->get($path),
+            'pdf' => (new PdfParser)->parseFile($fullPath)->getText(),
+            default => throw new \RuntimeException("Unsupported file type: .{$extension}. Use .txt, .md, .csv, or .pdf"),
         };
     }
 

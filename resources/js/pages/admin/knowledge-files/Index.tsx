@@ -30,15 +30,17 @@ export default function Index({ knowledgeFiles }: Props) {
     const adminRoutes = (routes as any)?.admin?.knowledgeFiles;
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const { data, setData, post, processing, errors } = useForm<{ file: File | null }>({
-        file: null,
+    const { data, setData, processing, errors } = useForm<{ files: File[] }>({
+        files: [],
     });
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!data.file || !adminRoutes?.store) return;
-        router.post(adminRoutes.store, { file: data.file }, { forceFormData: true });
-        setData('file', null);
+        if (data.files.length === 0 || !adminRoutes?.store) return;
+        const formData = new FormData();
+        data.files.forEach((file) => formData.append('files[]', file));
+        router.post(adminRoutes.store, formData, { forceFormData: true });
+        setData('files', []);
         if (fileInputRef.current) fileInputRef.current.value = '';
     };
 
@@ -72,9 +74,9 @@ export default function Index({ knowledgeFiles }: Props) {
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Upload knowledge file</CardTitle>
+                        <CardTitle>Upload knowledge files</CardTitle>
                         <CardDescription>
-                            Upload .txt, .md, or .csv files. They will be chunked and embedded into PostgreSQL for the chat assistant.
+                            Upload .txt, .md, .csv, or .pdf files. They will be chunked and embedded into PostgreSQL for the chat assistant.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -82,22 +84,42 @@ export default function Index({ knowledgeFiles }: Props) {
                             <input
                                 ref={fileInputRef}
                                 type="file"
-                                accept=".txt,.md,.csv"
+                                accept=".txt,.md,.csv,.pdf"
+                                multiple
                                 className="hidden"
-                                onChange={(e) => setData('file', e.target.files?.[0] ?? null)}
+                                onChange={(e) =>
+                                    setData(
+                                        'files',
+                                        e.target.files ? Array.from(e.target.files) : [],
+                                    )
+                                }
                             />
                             <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
                                 <Upload className="mr-2 size-4" />
-                                Choose file
+                                Choose files
                             </Button>
-                            {data.file && (
-                                <span className="text-sm text-muted-foreground">{data.file.name}</span>
+                            {data.files.length > 0 && (
+                                <span className="text-sm text-muted-foreground">
+                                    {data.files.length} file{data.files.length !== 1 ? 's' : ''} selected
+                                    {data.files.length <= 3
+                                        ? `: ${data.files.map((f) => f.name).join(', ')}`
+                                        : ''}
+                                </span>
                             )}
-                            <Button type="submit" disabled={!data.file || processing}>
+                            <Button type="submit" disabled={data.files.length === 0 || processing}>
                                 {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
                                 Upload and process
                             </Button>
-                            {errors.file && <p className="w-full text-sm text-destructive">{errors.file}</p>}
+                            {(() => {
+                                const fileErrorKey = Object.keys(errors).find((k) =>
+                                    k.startsWith('files'),
+                                );
+                                return fileErrorKey ? (
+                                    <p className="w-full text-sm text-destructive">
+                                        {(errors as Record<string, string>)[fileErrorKey]}
+                                    </p>
+                                ) : null;
+                            })()}
                         </form>
                     </CardContent>
                 </Card>

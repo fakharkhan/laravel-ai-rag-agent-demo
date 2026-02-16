@@ -98,7 +98,7 @@ export default function Welcome({
                                 Upload knowledge
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Add .txt, .md, or .csv files to your personal library. They’re chunked and embedded so the assistant can search and cite your content.
+                                Add .txt, .md, .csv, or .pdf files to your personal library. They’re chunked and embedded so the assistant can search and cite your content.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
