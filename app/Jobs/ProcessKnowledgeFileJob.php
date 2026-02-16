@@ -70,10 +70,20 @@ class ProcessKnowledgeFileJob implements ShouldQueue
         } catch (\Throwable $e) {
             $this->knowledgeFile->update([
                 'status' => KnowledgeFile::StatusFailed,
-                'error_message' => $e->getMessage(),
+                'error_message' => $this->userFacingErrorMessage($e),
             ]);
-            throw $e;
         }
+    }
+
+    protected function userFacingErrorMessage(\Throwable $e): string
+    {
+        $message = $e->getMessage();
+
+        if (str_contains($message, 'Secured pdf') || str_contains($message, 'password') || str_contains($message, 'encrypted')) {
+            return 'This PDF is password-protected or secured. Use an unsecured PDF or remove the password first.';
+        }
+
+        return $message;
     }
 
     protected function extractText(): string

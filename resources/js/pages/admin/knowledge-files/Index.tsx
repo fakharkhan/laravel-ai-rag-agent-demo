@@ -1,6 +1,7 @@
 import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
-import { useRef } from 'react';
+import { FileCode, FileSpreadsheet, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
@@ -24,8 +25,31 @@ function formatDateTime(iso: string): string {
     });
 }
 
+function getFileIcon(fileName: string): LucideIcon {
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    switch (ext) {
+        case 'pdf':
+            return FileText;
+        case 'csv':
+            return FileSpreadsheet;
+        case 'md':
+        case 'markdown':
+            return FileCode;
+        case 'txt':
+        default:
+            return FileText;
+    }
+}
+
 interface Props {
     knowledgeFiles: KnowledgeFileRecord[];
+}
+
+const ACCEPTED_EXTENSIONS = ['.txt', '.md', '.csv', '.pdf'];
+
+function isAcceptedFile(file: File): boolean {
+    const name = file.name.toLowerCase();
+    return ACCEPTED_EXTENSIONS.some((ext) => name.endsWith(ext));
 }
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -37,10 +61,34 @@ export default function Index({ knowledgeFiles }: Props) {
     const { routes } = usePage<SharedData>().props;
     const adminRoutes = (routes as any)?.admin?.knowledgeFiles;
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isDragging, setIsDragging] = useState(false);
 
     const { data, setData, processing, errors } = useForm<{ files: File[] }>({
         files: [],
     });
+
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragging(false);
+        if (processing) return;
+        const dropped = Array.from(e.dataTransfer.files ?? []).filter(isAcceptedFile);
+        if (dropped.length > 0) {
+            setData('files', [...data.files, ...dropped]);
+        }
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -93,8 +141,17 @@ export default function Index({ knowledgeFiles }: Props) {
                             Upload PDFs, text files, or spreadsheets. The assistant will learn from them to answer your questions.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
-                        <form onSubmit={submit} className="flex flex-wrap items-end gap-4">
+                    <CardContent
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`rounded-lg border-2 border-dashed transition-colors ${
+                            isDragging
+                                ? 'border-primary bg-primary/5'
+                                : 'border-muted-foreground/25 hover:border-muted-foreground/40'
+                        }`}
+                    >
+                        <form onSubmit={submit} className="flex flex-wrap items-end gap-4 p-1">
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -112,6 +169,7 @@ export default function Index({ knowledgeFiles }: Props) {
                                 <Upload className="mr-2 size-4" />
                                 Choose files
                             </Button>
+                            <span className="text-xs text-muted-foreground">or drop files here</span>
                             {data.files.length > 0 && (
                                 <span className="text-sm text-muted-foreground">
                                     {data.files.length} file{data.files.length !== 1 ? 's' : ''} selected
@@ -148,46 +206,49 @@ export default function Index({ knowledgeFiles }: Props) {
                             <p className="text-sm text-muted-foreground">You haven't added any documents yet. Upload a file above to get started.</p>
                         ) : (
                             <ul className="divide-y divide-border">
-                                {knowledgeFiles.map((file) => (
-                                    <li key={file.id} className="flex items-center justify-between py-3 first:pt-0">
-                                        <div className="flex items-center gap-3">
-                                            <FileText className="size-5 text-muted-foreground" />
-                                            <div>
-                                                <p className="font-medium">{file.name}</p>
-                                                {file.error_message && (
-                                                    <p className="text-xs text-destructive">{file.error_message}</p>
-                                                )}
-                                                <p className="mt-1 text-xs text-muted-foreground">
-                                                    Added: {formatDateTime(file.created_at)}
-                                                    {' · '}
-                                                    Last updated: {formatDateTime(file.updated_at)}
-                                                </p>
+                                {knowledgeFiles.map((file) => {
+                                    const FileIcon = getFileIcon(file.name);
+                                    return (
+                                        <li key={file.id} className="flex items-center justify-between py-3 first:pt-0">
+                                            <div className="flex items-center gap-3">
+                                                <FileIcon className="size-5 shrink-0 text-muted-foreground" />
+                                                <div>
+                                                    <p className="font-medium">{file.name}</p>
+                                                    {file.error_message && (
+                                                        <p className="text-xs text-destructive">{file.error_message}</p>
+                                                    )}
+                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                        Added: {formatDateTime(file.created_at)}
+                                                        {' · '}
+                                                        Last updated: {formatDateTime(file.updated_at)}
+                                                    </p>
+                                                </div>
+                                                {statusBadge(file.status)}
                                             </div>
-                                            {statusBadge(file.status)}
-                                        </div>
-                                        <div className="flex gap-2">
-                                            {(file.status === 'completed' || file.status === 'failed') && (
+                                            <div className="flex gap-2">
+                                                {(file.status === 'completed' || file.status === 'failed') && (
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => reprocess(file.id)}
+                                                        title="Update document"
+                                                    >
+                                                        <RefreshCw className="size-4" />
+                                                    </Button>
+                                                )}
                                                 <Button
                                                     type="button"
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => reprocess(file.id)}
-                                                    title="Update document"
+                                                    onClick={() => destroy(file.id)}
                                                 >
-                                                    <RefreshCw className="size-4" />
+                                                    <Trash2 className="size-4" />
                                                 </Button>
-                                            )}
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                size="sm"
-                                                onClick={() => destroy(file.id)}
-                                            >
-                                                <Trash2 className="size-4" />
-                                            </Button>
-                                        </div>
-                                    </li>
-                                ))}
+                                            </div>
+                                        </li>
+                                    );
+                                })}
                             </ul>
                         )}
                     </CardContent>
