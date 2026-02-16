@@ -235,7 +235,7 @@ export default function ChatIndex() {
                         <div className="flex flex-col gap-1.5">
                             <CardTitle>Chat assistant</CardTitle>
                             <CardDescription>
-                                Ask questions. Answers use your uploaded knowledge base when relevant.
+                                Ask anything. Answers are based on your documents when relevant.
                             </CardDescription>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
@@ -243,13 +243,13 @@ export default function ChatIndex() {
                                 id="chat-memory"
                                 checked={memoryEnabled}
                                 onCheckedChange={setMemoryEnabledAndStore}
-                                aria-label="Save conversation (memory)"
+                                aria-label="Remember this chat"
                             />
                             <Label
                                 htmlFor="chat-memory"
                                 className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                Memory
+                                Remember this chat
                             </Label>
                         </div>
                     </CardHeader>

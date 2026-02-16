@@ -12,7 +12,7 @@ export default function Welcome({
 
     return (
         <>
-            <Head title="AI Chat Assistant – Knowledge-powered answers">
+            <Head title="AI Chat Assistant – Answers from your documents">
                 <link rel="preconnect" href="https://fonts.bunny.net" />
                 <link
                     href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600,700"
@@ -60,16 +60,16 @@ export default function Welcome({
                     <section className="text-center">
                         <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">
                             <Sparkles className="size-3.5" />
-                            RAG-powered
+                            AI-powered
                         </p>
                         <h1 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-5xl md:text-6xl">
-                            Chat with your
+                            Get answers from
                             <span className="bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-violet-400">
-                                {' '}knowledge base
+                                {' '}your documents
                             </span>
                         </h1>
                         <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-                            Upload documents, configure your assistant, and get answers grounded in your own content. Create multiple chats, toggle memory on or off, and pick up where you left off from your conversation history.
+                            Add your files, customize how your assistant responds, and get instant answers based on your own content. Create multiple chats and pick up where you left off anytime.
                         </p>
                         {!auth.user && (
                             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -95,10 +95,10 @@ export default function Welcome({
                                 <BookOpen className="size-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                Upload knowledge
+                                Add your documents
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Add .txt, .md, .csv, or .pdf files to your personal library. They’re chunked and embedded so the assistant can search and cite your content.
+                                Upload PDFs, Word docs, or text files. The assistant learns from them so it can find and reference your content when answering.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
@@ -106,10 +106,10 @@ export default function Welcome({
                                 <Settings className="size-6 text-violet-600 dark:text-violet-400" />
                             </div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                Configure the assistant
+                                Customize your assistant
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Set the system prompt and choose the OpenAI model. Your settings are private to your account.
+                                Set how your assistant should behave and choose how capable you want it to be. Your preferences are private to you.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
@@ -117,10 +117,10 @@ export default function Welcome({
                                 <MessageSquare className="size-6 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                Chat with context
+                                Ask and get answers
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Ask questions and get streaming answers that use your uploaded docs when relevant.
+                                Type any question and get instant answers. When relevant, the assistant uses your documents to respond.
                             </p>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
@@ -128,10 +128,10 @@ export default function Welcome({
                                 <MessageSquarePlus className="size-6 text-amber-600 dark:text-amber-400" />
                             </div>
                             <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                Multiple chats &amp; memory
+                                Multiple chats &amp; history
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-                                Create new chats, browse your conversation history in the sidebar, and toggle memory to save or start fresh.
+                                Start new chats anytime, browse past conversations, and choose whether to remember context or start fresh.
                             </p>
                         </div>
                     </section>
@@ -158,7 +158,7 @@ export default function Welcome({
 
                 <footer className="mt-24 border-t border-slate-200 py-8 dark:border-slate-800">
                     <div className="mx-auto max-w-5xl px-4 text-center text-sm text-slate-500 dark:text-slate-400">
-                        <p>Chat Assistant · Laravel · OpenAI · PostgreSQL (pgvector)</p>
+                        <p>Chat Assistant · Secure · Private · Your data stays yours</p>
                         <p className="mt-2">
                             Powered by{' '}
                             <a

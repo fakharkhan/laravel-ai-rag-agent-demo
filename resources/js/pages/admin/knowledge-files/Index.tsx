@@ -30,7 +30,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Knowledge files', href: '#' },
+    { title: 'Your documents', href: '#' },
 ];
 
 export default function Index({ knowledgeFiles }: Props) {
@@ -69,22 +69,28 @@ export default function Index({ knowledgeFiles }: Props) {
             completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
             failed: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
         };
+        const labels: Record<string, string> = {
+            pending: 'In queue',
+            processing: 'Preparing…',
+            completed: 'Ready',
+            failed: 'Error',
+        };
         return (
             <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${map[status] ?? 'bg-gray-100 text-gray-800'}`}>
-                {status}
+                {labels[status] ?? status}
             </span>
         );
     };
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Knowledge files" />
+            <Head title="Your documents" />
             <div className="flex flex-1 flex-col gap-6 p-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Upload knowledge files</CardTitle>
+                        <CardTitle>Add your documents</CardTitle>
                         <CardDescription>
-                            Upload .txt, .md, .csv, or .pdf files. They will be chunked and embedded into PostgreSQL for the chat assistant.
+                            Upload PDFs, text files, or spreadsheets. The assistant will learn from them to answer your questions.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -116,7 +122,7 @@ export default function Index({ knowledgeFiles }: Props) {
                             )}
                             <Button type="submit" disabled={data.files.length === 0 || processing}>
                                 {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                                Upload and process
+                                Add documents
                             </Button>
                             {(() => {
                                 const fileErrorKey = Object.keys(errors).find((k) =>
@@ -134,12 +140,12 @@ export default function Index({ knowledgeFiles }: Props) {
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>Uploaded files</CardTitle>
-                        <CardDescription>Files are processed in the background. Reprocess to refresh embeddings.</CardDescription>
+                        <CardTitle>Your documents</CardTitle>
+                        <CardDescription>Documents are prepared in the background. Use refresh to update a file if you've changed it.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {knowledgeFiles.length === 0 ? (
-                            <p className="text-sm text-muted-foreground">No files uploaded yet.</p>
+                            <p className="text-sm text-muted-foreground">You haven't added any documents yet. Upload a file above to get started.</p>
                         ) : (
                             <ul className="divide-y divide-border">
                                 {knowledgeFiles.map((file) => (
@@ -149,13 +155,13 @@ export default function Index({ knowledgeFiles }: Props) {
                                             <div>
                                                 <p className="font-medium">{file.name}</p>
                                                 <p className="text-xs text-muted-foreground">
-                                                    {file.chunks_count} chunks · {file.status}
+                                                    {file.chunks_count} sections
                                                     {file.error_message && ` · ${file.error_message}`}
                                                 </p>
                                                 <p className="mt-1 text-xs text-muted-foreground">
-                                                    Uploaded: {formatDateTime(file.created_at)}
+                                                    Added: {formatDateTime(file.created_at)}
                                                     {' · '}
-                                                    Last indexed: {formatDateTime(file.updated_at)}
+                                                    Last updated: {formatDateTime(file.updated_at)}
                                                 </p>
                                             </div>
                                             {statusBadge(file.status)}
@@ -167,6 +173,7 @@ export default function Index({ knowledgeFiles }: Props) {
                                                     variant="outline"
                                                     size="sm"
                                                     onClick={() => reprocess(file.id)}
+                                                    title="Update document"
                                                 >
                                                     <RefreshCw className="size-4" />
                                                 </Button>

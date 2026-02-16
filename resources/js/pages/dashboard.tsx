@@ -36,24 +36,24 @@ export default function Dashboard({ stats }: DashboardProps) {
                 <div>
                     <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
                     <p className="text-muted-foreground text-sm">
-                        Overview of your AI Chat Demo setup and quick actions.
+                        Your workspace at a glance. Add documents, customize your assistant, and start chatting.
                     </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Knowledge files</CardTitle>
+                            <CardTitle className="text-sm font-medium">Your documents</CardTitle>
                             <Upload className="text-muted-foreground size-4" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">{stats.knowledge_files_total}</div>
                             <p className="text-muted-foreground text-xs">
-                                {stats.knowledge_files_ready} ready for chat
+                                {stats.knowledge_files_ready} ready to use
                             </p>
                             {knowledgeFilesIndex && (
                                 <Button variant="link" className="mt-2 h-auto p-0 text-xs" asChild>
-                                    <Link href={knowledgeFilesIndex}>Manage files</Link>
+                                    <Link href={knowledgeFilesIndex}>Manage documents</Link>
                                 </Button>
                             )}
                         </CardContent>
@@ -61,7 +61,7 @@ export default function Dashboard({ stats }: DashboardProps) {
 
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between gap-2 space-y-0 pb-2">
-                            <CardTitle className="text-sm font-medium">Chat model</CardTitle>
+                            <CardTitle className="text-sm font-medium">Assistant settings</CardTitle>
                             <MessageSquare className="text-muted-foreground size-4" />
                         </CardHeader>
                         <CardContent>
@@ -69,11 +69,11 @@ export default function Dashboard({ stats }: DashboardProps) {
                                 {stats.chat_model || 'Not set'}
                             </div>
                             <p className="text-muted-foreground text-xs">
-                                System prompt and model
+                                Personality and AI model
                             </p>
                             {chatConfigIndex && (
                                 <Button variant="link" className="mt-2 h-auto p-0 text-xs" asChild>
-                                    <Link href={chatConfigIndex}>Configure</Link>
+                                    <Link href={chatConfigIndex}>Customize</Link>
                                 </Button>
                             )}
                         </CardContent>
@@ -86,7 +86,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                         </CardHeader>
                         <CardContent>
                             <p className="text-muted-foreground text-sm">
-                                Open the RAG-powered chat assistant.
+                                Ask questions and get answers from your documents.
                             </p>
                             {chatIndex && (
                                 <Button className="mt-2" asChild>
@@ -104,22 +104,19 @@ export default function Dashboard({ stats }: DashboardProps) {
                             Get started
                         </CardTitle>
                         <CardDescription>
-                            Set up your AI Chat Demo in a few steps.
+                            Set up your assistant in three simple steps.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <ol className="list-decimal space-y-3 pl-5 text-sm">
                             <li>
-                                <span className="font-medium">Upload knowledge files</span> — Add .txt or .md
-                                files in Admin → Knowledge files so the chat can answer from your content.
+                                <span className="font-medium">Add your documents</span> — Upload PDFs, Word docs, or text files so the assistant can answer from your content.
                             </li>
                             <li>
-                                <span className="font-medium">Configure the chat</span> — Set the system prompt
-                                and OpenAI model in Admin → Chat config.
+                                <span className="font-medium">Customize your assistant</span> — Set how it should behave and choose the AI model in Assistant settings.
                             </li>
                             <li>
-                                <span className="font-medium">Start chatting</span> — Go to Chat and ask
-                                questions; answers use your knowledge base when relevant.
+                                <span className="font-medium">Start asking questions</span> — Go to Chat and ask anything; answers are based on your documents when relevant.
                             </li>
                         </ol>
                         <div className="flex flex-wrap gap-2 pt-2">
@@ -127,7 +124,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href={knowledgeFilesIndex}>
                                         <Upload className="mr-2 size-4" />
-                                        Knowledge files
+                                        Your documents
                                     </Link>
                                 </Button>
                             )}
@@ -135,7 +132,7 @@ export default function Dashboard({ stats }: DashboardProps) {
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href={chatConfigIndex}>
                                         <Settings className="mr-2 size-4" />
-                                        Chat config
+                                        Assistant settings
                                     </Link>
                                 </Button>
                             )}

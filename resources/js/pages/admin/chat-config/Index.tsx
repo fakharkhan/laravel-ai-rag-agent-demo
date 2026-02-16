@@ -28,7 +28,7 @@ interface PageProps {
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Dashboard', href: '/dashboard' },
-    { title: 'Chat configuration', href: '#' },
+    { title: 'Assistant settings', href: '#' },
 ];
 
 export default function Index({ chatConfig, openAiModels }: PageProps) {
@@ -48,7 +48,7 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Chat configuration" />
+            <Head title="Assistant settings" />
             <div className="flex flex-1 flex-col gap-6 p-4">
                 {props.flash?.success && (
                     <p className="rounded-md bg-green-500/10 px-4 py-2 text-sm text-green-600 dark:text-green-400" role="alert">
@@ -62,29 +62,29 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
                 )}
                 <Card>
                     <CardHeader>
-                        <CardTitle>Chatbot settings</CardTitle>
+                        <CardTitle>Assistant settings</CardTitle>
                         <CardDescription>
-                            Configure the system prompt and model for the chat assistant. OpenAI is used for embeddings and chat.
+                            Customize how your assistant responds. Set its instructions and choose the AI model it uses.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
-                                <Label htmlFor="system_prompt">System prompt</Label>
+                                <Label htmlFor="system_prompt">Instructions for your assistant</Label>
                                 <textarea
                                     id="system_prompt"
                                     rows={6}
                                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={data.system_prompt}
                                     onChange={(e) => setData('system_prompt', e.target.value)}
-                                    placeholder="e.g. You are a helpful assistant for Fakhar Khan and SoftPyramid. Answer only from the provided context. See docs/chat-agent-system-prompt.md for examples."
+                                    placeholder="e.g. You are a helpful assistant. Answer only from the documents I've provided. Be concise and accurate."
                                 />
                                 {errors.system_prompt && (
                                     <p className="text-sm text-destructive">{errors.system_prompt}</p>
                                 )}
                             </div>
                             <div className="space-y-2">
-                                <Label>Model</Label>
+                                <Label>AI model</Label>
                                 <Select
                                     value={data.model}
                                     onValueChange={(v) => setData('model', v)}
@@ -103,7 +103,7 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
                                 {errors.model && <p className="text-sm text-destructive">{errors.model}</p>}
                             </div>
                             <Button type="submit" disabled={processing}>
-                                Save configuration
+                                Save settings
                             </Button>
                         </form>
                     </CardContent>
