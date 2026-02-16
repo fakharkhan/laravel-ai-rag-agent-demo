@@ -243,13 +243,13 @@ export default function ChatIndex() {
                                 id="chat-memory"
                                 checked={memoryEnabled}
                                 onCheckedChange={setMemoryEnabledAndStore}
-                                aria-label="Remember this chat"
+                                aria-label="Save conversation (memory)"
                             />
                             <Label
                                 htmlFor="chat-memory"
                                 className="cursor-pointer text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                             >
-                                Remember this chat
+                                Memory
                             </Label>
                         </div>
                     </CardHeader>
