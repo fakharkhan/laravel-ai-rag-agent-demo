@@ -30,9 +30,9 @@ test('user only sees their own knowledge files on index', function () {
     $response->assertOk();
     $response->assertInertia(fn ($page) => $page
         ->component('admin/knowledge-files/Index')
-        ->has('knowledgeFiles', 1)
-        ->where('knowledgeFiles.0.name', 'a-file.txt')
-        ->where('knowledgeFiles.0.user_id', $userA->id)
+        ->has('knowledgeFiles.data', 1)
+        ->where('knowledgeFiles.data.0.name', 'a-file.txt')
+        ->where('knowledgeFiles.data.0.user_id', $userA->id)
     );
 });
 

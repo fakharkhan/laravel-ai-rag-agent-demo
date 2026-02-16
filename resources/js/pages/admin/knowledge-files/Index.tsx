@@ -1,5 +1,5 @@
-import { Head, router, useForm, usePage } from '@inertiajs/react';
-import { FileCode, FileSpreadsheet, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import { ChevronLeft, ChevronRight, FileCode, FileSpreadsheet, FileText, Loader2, RefreshCw, Trash2, Upload } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -41,8 +41,21 @@ function getFileIcon(fileName: string): LucideIcon {
     }
 }
 
+interface PaginatedKnowledgeFiles {
+    data: KnowledgeFileRecord[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    links: Array<{ url: string | null; label: string; active: boolean }>;
+}
+
 interface Props {
-    knowledgeFiles: KnowledgeFileRecord[];
+    knowledgeFiles: PaginatedKnowledgeFiles;
 }
 
 const ACCEPTED_EXTENSIONS = ['.txt', '.md', '.csv', '.pdf'];
@@ -58,6 +71,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Index({ knowledgeFiles }: Props) {
+    const { data: files, current_page, last_page, total, from, to, prev_page_url, next_page_url } = knowledgeFiles;
     const { routes } = usePage<SharedData>().props;
     const adminRoutes = (routes as any)?.admin?.knowledgeFiles;
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -202,11 +216,12 @@ export default function Index({ knowledgeFiles }: Props) {
                         <CardDescription>Documents are prepared in the background. Use refresh to update a file if you've changed it.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        {knowledgeFiles.length === 0 ? (
+                        {files.length === 0 ? (
                             <p className="text-sm text-muted-foreground">You haven't added any documents yet. Upload a file above to get started.</p>
                         ) : (
+                            <>
                             <ul className="divide-y divide-border">
-                                {knowledgeFiles.map((file) => {
+                                {files.map((file) => {
                                     const FileIcon = getFileIcon(file.name);
                                     return (
                                         <li key={file.id} className="flex items-center justify-between py-3 first:pt-0">
@@ -250,6 +265,45 @@ export default function Index({ knowledgeFiles }: Props) {
                                     );
                                 })}
                             </ul>
+                            {last_page > 1 && (
+                                <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4">
+                                    <p className="text-sm text-muted-foreground">
+                                        {from != null && to != null ? `Showing ${from}–${to} of ${total}` : `Total ${total}`}
+                                    </p>
+                                    <nav className="flex items-center gap-1" aria-label="Pagination">
+                                        {prev_page_url ? (
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={prev_page_url}>
+                                                    <ChevronLeft className="size-4" />
+                                                    Previous
+                                                </Link>
+                                            </Button>
+                                        ) : (
+                                            <Button variant="outline" size="sm" disabled>
+                                                <ChevronLeft className="size-4" />
+                                                Previous
+                                            </Button>
+                                        )}
+                                        <span className="px-2 text-sm text-muted-foreground">
+                                            Page {current_page} of {last_page}
+                                        </span>
+                                        {next_page_url ? (
+                                            <Button variant="outline" size="sm" asChild>
+                                                <Link href={next_page_url}>
+                                                    Next
+                                                    <ChevronRight className="size-4" />
+                                                </Link>
+                                            </Button>
+                                        ) : (
+                                            <Button variant="outline" size="sm" disabled>
+                                                Next
+                                                <ChevronRight className="size-4" />
+                                            </Button>
+                                        )}
+                                    </nav>
+                                </div>
+                            )}
+                            </>
                         )}
                     </CardContent>
                 </Card>

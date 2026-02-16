@@ -22,7 +22,8 @@ class KnowledgeFileController extends Controller
         $files = KnowledgeFile::query()
             ->where('user_id', $request->user()->id)
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('admin/knowledge-files/Index', [
             'knowledgeFiles' => $files,
