@@ -11,7 +11,15 @@ class ChatConfig extends Model
         'system_prompt',
         'provider',
         'model',
+        'openai_api_key',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'openai_api_key' => 'encrypted',
+        ];
+    }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -39,5 +47,29 @@ Rules:
                 'model' => 'gpt-4o-mini',
             ]
         );
+    }
+
+    /**
+     * Whether the user uses the organization key from .env (softpyramid.com / softpyramid.dev).
+     */
+    public static function useOrganizationKey(\App\Models\User $user): bool
+    {
+        $email = strtolower($user->email ?? '');
+
+        return str_ends_with($email, '@softpyramid.com') || str_ends_with($email, '@softpyramid.dev');
+    }
+
+    /**
+     * Resolve the OpenAI API key for the user: organization key for softpyramid, else the user's saved key.
+     */
+    public static function effectiveOpenAiKey(\App\Models\User $user): ?string
+    {
+        if (static::useOrganizationKey($user)) {
+            return config('ai.providers.openai.key');
+        }
+
+        $config = static::forUser($user);
+
+        return $config->openai_api_key;
     }
 }

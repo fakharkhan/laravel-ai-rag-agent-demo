@@ -17,10 +17,12 @@ interface ChatConfigRecord {
     system_prompt: string | null;
     provider: string;
     model: string | null;
+    has_openai_key?: boolean;
 }
 
 interface PageProps {
     chatConfig: ChatConfigRecord;
+    useOrganizationKey: boolean;
     openAiModels: string[];
     routes?: { admin?: { chatConfig?: { update?: string } } };
     flash?: { success?: string; error?: string };
@@ -31,7 +33,7 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Assistant settings', href: '#' },
 ];
 
-export default function Index({ chatConfig, openAiModels }: PageProps) {
+export default function Index({ chatConfig, useOrganizationKey, openAiModels }: PageProps) {
     const { props } = usePage<PageProps>();
     const updateUrl = props.routes?.admin?.chatConfig?.update ?? '/admin/chat-config';
 
@@ -39,6 +41,7 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
         system_prompt: chatConfig.system_prompt ?? '',
         provider: chatConfig.provider ?? 'openai',
         model: chatConfig.model ?? 'gpt-4o-mini',
+        openai_api_key: '',
     });
 
     function handleSubmit(e: React.FormEvent) {
@@ -73,7 +76,7 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
                                 <Label htmlFor="system_prompt">Instructions for your assistant</Label>
                                 <textarea
                                     id="system_prompt"
-                                    rows={6}
+                                    rows={12}
                                     className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     value={data.system_prompt}
                                     onChange={(e) => setData('system_prompt', e.target.value)}
@@ -83,24 +86,55 @@ export default function Index({ chatConfig, openAiModels }: PageProps) {
                                     <p className="text-sm text-destructive">{errors.system_prompt}</p>
                                 )}
                             </div>
-                            <div className="space-y-2">
-                                <Label>AI model</Label>
-                                <Select
-                                    value={data.model}
-                                    onValueChange={(v) => setData('model', v)}
-                                >
-                                    <SelectTrigger className="w-full max-w-xs">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {openAiModels.map((m) => (
-                                            <SelectItem key={m} value={m}>
-                                                {m}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                {errors.model && <p className="text-sm text-destructive">{errors.model}</p>}
+                            <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_minmax(12rem,auto)] sm:items-end">
+                                {useOrganizationKey ? (
+                                    <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+                                        Your account uses the organization OpenAI API key. No personal key is required.
+                                    </p>
+                                ) : (
+                                    <div className="min-w-0 space-y-2">
+                                        <Label htmlFor="openai_api_key">OpenAI API key</Label>
+                                        <input
+                                            id="openai_api_key"
+                                            type="password"
+                                            autoComplete="off"
+                                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                            placeholder={chatConfig.has_openai_key ? '••••••••••••••••' : 'sk-...'}
+                                            value={data.openai_api_key}
+                                            onChange={(e) => setData('openai_api_key', e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            {chatConfig.has_openai_key
+                                                ? 'Leave blank to keep your current key. Enter a new key to replace it.'
+                                                : 'Required for chat and document processing. Get a key from platform.openai.com.'}
+                                        </p>
+                                        {errors.openai_api_key && (
+                                            <p className="text-sm text-destructive">{errors.openai_api_key}</p>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="min-w-0 space-y-2 sm:min-w-[12rem]">
+                                    <Label>AI model</Label>
+                                    <Select
+                                        value={data.model}
+                                        onValueChange={(v) => setData('model', v)}
+                                    >
+                                        <SelectTrigger className="w-full">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {openAiModels.map((m) => (
+                                                <SelectItem key={m} value={m}>
+                                                    {m}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <p className="text-xs text-muted-foreground">
+                                        Faster models cost less; smarter models give better answers.
+                                    </p>
+                                    {errors.model && <p className="text-sm text-destructive">{errors.model}</p>}
+                                </div>
                             </div>
                             <Button type="submit" disabled={processing}>
                                 Save settings

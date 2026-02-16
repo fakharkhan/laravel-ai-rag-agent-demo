@@ -9,6 +9,7 @@ use App\Models\KnowledgeFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
@@ -139,6 +140,14 @@ class ChatController extends Controller
         }
 
         try {
+            $openAiKey = ChatConfig::effectiveOpenAiKey($user);
+            if (empty($openAiKey)) {
+                return response()->json([
+                    'error' => 'OpenAI API key is required. Go to Assistant settings and add your API key, or use an organization account.',
+                ], 400);
+            }
+            Config::set('ai.providers.openai.key', $openAiKey);
+
             $context = $this->getRagContext($message, $user);
             $instructions = $this->buildInstructions($config->system_prompt ?? '', $context);
 

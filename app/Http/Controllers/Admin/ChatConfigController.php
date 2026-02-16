@@ -14,7 +14,9 @@ class ChatConfigController extends Controller
 {
     public function index(Request $request): Response
     {
-        $config = ChatConfig::forUser($request->user());
+        $user = $request->user();
+        $config = ChatConfig::forUser($user);
+        $useOrganizationKey = ChatConfig::useOrganizationKey($user);
 
         return Inertia::render('admin/chat-config/Index', [
             'chatConfig' => [
@@ -22,7 +24,9 @@ class ChatConfigController extends Controller
                 'system_prompt' => $config->system_prompt,
                 'provider' => $config->provider,
                 'model' => $config->model,
+                'has_openai_key' => ! $useOrganizationKey && ! empty($config->openai_api_key),
             ],
+            'useOrganizationKey' => $useOrganizationKey,
             'openAiModels' => [
                 'gpt-4o',
                 'gpt-4o-mini',
@@ -36,7 +40,17 @@ class ChatConfigController extends Controller
     public function update(UpdateChatConfigRequest $request): RedirectResponse
     {
         $config = ChatConfig::forUser($request->user());
-        $config->update($request->validated());
+        $data = $request->validated();
+
+        if (ChatConfig::useOrganizationKey($request->user())) {
+            unset($data['openai_api_key']);
+        } else {
+            if (array_key_exists('openai_api_key', $data) && $data['openai_api_key'] === '') {
+                unset($data['openai_api_key']);
+            }
+        }
+
+        $config->update($data);
 
         return redirect()->route('admin.chat-config.index')
             ->with('success', 'Chat configuration saved.');

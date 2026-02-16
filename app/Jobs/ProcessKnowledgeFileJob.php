@@ -2,10 +2,12 @@
 
 namespace App\Jobs;
 
+use App\Models\ChatConfig;
 use App\Models\DocumentChunk;
 use App\Models\KnowledgeFile;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Ai\Embeddings;
 use Pgvector\Laravel\Vector;
@@ -25,6 +27,12 @@ class ProcessKnowledgeFileJob implements ShouldQueue
             'status' => KnowledgeFile::StatusProcessing,
             'error_message' => null,
         ]);
+
+        $user = $this->knowledgeFile->user;
+        $openAiKey = $user ? ChatConfig::effectiveOpenAiKey($user) : config('ai.providers.openai.key');
+        if (! empty($openAiKey)) {
+            Config::set('ai.providers.openai.key', $openAiKey);
+        }
 
         try {
             $content = $this->extractText();
