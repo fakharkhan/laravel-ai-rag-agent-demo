@@ -1,5 +1,5 @@
 import { Head, router, usePage } from '@inertiajs/react';
-import { Loader2, MessageSquarePlus, Send } from 'lucide-react';
+import { Loader2, MessageSquarePlus, Send, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ChatMessageBody from '@/components/chat-message-body';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,7 @@ export default function ChatIndex() {
     const streamUrl = (routes as { chat?: { stream?: string } })?.chat?.stream ?? '/chat/stream';
     const conversationsUrl = (routes as { chat?: { conversations?: string } })?.chat?.conversations ?? '/chat/conversations';
     const chatIndexUrl = (routes as { chat?: { index?: string } })?.chat?.index ?? '/chat';
+    const destroyConversationPath = (routes as { chat?: { destroyConversationPath?: string } })?.chat?.destroyConversationPath ?? '/chat/conversations/';
 
     const conversations = props.conversations ?? [];
     const currentConversationId = props.currentConversationId ?? null;
@@ -78,6 +79,13 @@ export default function ChatIndex() {
     function selectConversation(id: string | null) {
         const url = id ? `${chatIndexUrl}?conversation=${id}` : chatIndexUrl;
         router.visit(url);
+    }
+
+    function deleteConversation(e: React.MouseEvent, conversationId: string) {
+        e.stopPropagation();
+        if (!conversationId || !destroyConversationPath) return;
+        const url = `${destroyConversationPath.replace(/\/+$/, '')}/${conversationId}`;
+        router.delete(url);
     }
 
     async function fetchConversationsAndSelectNewest() {
@@ -214,19 +222,41 @@ export default function ChatIndex() {
                     </Button>
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <div className="flex flex-col gap-1">
-                            {chatList.map((c) => (
-                                <button
-                                    key={c.id}
-                                    type="button"
-                                    onClick={() => selectConversation(c.id)}
-                                    className={`flex flex-col items-start rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
-                                        currentConversationId === c.id ? 'bg-accent font-medium' : ''
-                                    }`}
-                                >
-                                    <span className="truncate w-full">{c.title}</span>
-                                    <span className="text-xs text-muted-foreground">{formatConversationDate(c.updated_at)}</span>
-                                </button>
-                            ))}
+                                {chatList.map((c) => (
+                                    <div
+                                        key={c.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => selectConversation(c.id)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                e.preventDefault();
+                                                selectConversation(c.id);
+                                            }
+                                        }}
+                                        className={`group flex flex-col items-start gap-1 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
+                                            currentConversationId === c.id ? 'bg-accent font-medium' : ''
+                                        }`}
+                                    >
+                                        <div className="flex w-full items-start justify-between gap-2">
+                                            <div className="min-w-0 flex-1">
+                                                <span className="block truncate">{c.title}</span>
+                                                <span className="text-xs text-muted-foreground">{formatConversationDate(c.updated_at)}</span>
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="icon"
+                                                className="size-7 shrink-0 opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                                onClick={(e) => deleteConversation(e, c.id)}
+                                                title="Delete chat"
+                                                aria-label={`Delete ${c.title}`}
+                                            >
+                                                <Trash2 className="size-3.5" />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ))}
                         </div>
                     </div>
                 </aside>

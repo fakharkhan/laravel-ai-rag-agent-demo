@@ -93,3 +93,59 @@ test('user cannot load another user conversation messages', function () {
         ->where('messages', [])
     );
 });
+
+test('user can delete own conversation', function () {
+    $user = User::factory()->create();
+    $this->actingAs($user);
+
+    $conversationId = (string) \Illuminate\Support\Str::uuid7();
+    DB::table('agent_conversations')->insert([
+        'id' => $conversationId,
+        'user_id' => $user->id,
+        'title' => 'My chat',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+    DB::table('agent_conversation_messages')->insert([
+        'id' => (string) \Illuminate\Support\Str::uuid7(),
+        'conversation_id' => $conversationId,
+        'user_id' => $user->id,
+        'agent' => 'TestAgent',
+        'role' => 'user',
+        'content' => 'Hi',
+        'attachments' => '[]',
+        'tool_calls' => '[]',
+        'tool_results' => '[]',
+        'usage' => '[]',
+        'meta' => '[]',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $response = $this->delete(route('chat.conversations.destroy', ['conversationId' => $conversationId]));
+
+    $response->assertRedirect(route('chat.index'));
+    expect(DB::table('agent_conversations')->where('id', $conversationId)->exists())->toBeFalse();
+    expect(DB::table('agent_conversation_messages')->where('conversation_id', $conversationId)->count())->toBe(0);
+});
+
+test('user cannot delete another user conversation', function () {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    $conversationB = (string) \Illuminate\Support\Str::uuid7();
+    DB::table('agent_conversations')->insert([
+        'id' => $conversationB,
+        'user_id' => $userB->id,
+        'title' => 'B chat',
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    $this->actingAs($userA);
+
+    $response = $this->delete(route('chat.conversations.destroy', ['conversationId' => $conversationB]));
+
+    $response->assertNotFound();
+    expect(DB::table('agent_conversations')->where('id', $conversationB)->exists())->toBeTrue();
+});

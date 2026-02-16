@@ -7,6 +7,7 @@ use App\Models\ChatConfig;
 use App\Models\DocumentChunk;
 use App\Models\KnowledgeFile;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -97,6 +98,20 @@ class ChatController extends Controller
         $conversations = $this->getConversationsForUser($user->id);
 
         return response()->json(['conversations' => $conversations]);
+    }
+
+    public function destroyConversation(Request $request, string $conversationId): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (! $this->conversationBelongsToUser($conversationId, $user->id)) {
+            abort(404);
+        }
+
+        DB::table('agent_conversation_messages')->where('conversation_id', $conversationId)->delete();
+        DB::table('agent_conversations')->where('id', $conversationId)->delete();
+
+        return redirect()->route('chat.index');
     }
 
     public function stream(Request $request): Response|JsonResponse|StreamableAgentResponse

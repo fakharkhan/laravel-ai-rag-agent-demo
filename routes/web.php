@@ -44,6 +44,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 Route::middleware(['auth', 'verified'])->prefix('chat')->name('chat.')->group(function () {
     Route::get('/', [App\Http\Controllers\ChatController::class, 'index'])->name('index');
     Route::get('conversations', [App\Http\Controllers\ChatController::class, 'conversations'])->name('conversations');
+    Route::delete('conversations/{conversationId}', [App\Http\Controllers\ChatController::class, 'destroyConversation'])->name('conversations.destroy');
     Route::post('stream', [App\Http\Controllers\ChatController::class, 'stream'])->name('stream');
 });
 
