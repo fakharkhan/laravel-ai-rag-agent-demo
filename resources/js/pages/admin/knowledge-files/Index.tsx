@@ -14,6 +14,14 @@ interface KnowledgeFileRecord {
     error_message: string | null;
     chunks_count: number;
     created_at: string;
+    updated_at: string;
+}
+
+function formatDateTime(iso: string): string {
+    return new Date(iso).toLocaleString(undefined, {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+    });
 }
 
 interface Props {
@@ -143,6 +151,11 @@ export default function Index({ knowledgeFiles }: Props) {
                                                 <p className="text-xs text-muted-foreground">
                                                     {file.chunks_count} chunks · {file.status}
                                                     {file.error_message && ` · ${file.error_message}`}
+                                                </p>
+                                                <p className="mt-1 text-xs text-muted-foreground">
+                                                    Uploaded: {formatDateTime(file.created_at)}
+                                                    {' · '}
+                                                    Last indexed: {formatDateTime(file.updated_at)}
                                                 </p>
                                             </div>
                                             {statusBadge(file.status)}
