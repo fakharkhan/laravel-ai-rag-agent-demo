@@ -165,7 +165,7 @@ export default function Index({ knowledgeFiles }: Props) {
                                 : 'border-muted-foreground/25 hover:border-muted-foreground/40'
                         }`}
                     >
-                        <form onSubmit={submit} className="flex flex-wrap items-end gap-4 p-1">
+                        <form onSubmit={submit} className="space-y-4 p-1">
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -179,29 +179,35 @@ export default function Index({ knowledgeFiles }: Props) {
                                     )
                                 }
                             />
-                            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                                <Upload className="mr-2 size-4" />
-                                Choose files
-                            </Button>
-                            <span className="text-xs text-muted-foreground">or drop files here</span>
+                            <div className="flex flex-wrap items-center gap-3">
+                                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                                    <Upload className="mr-2 size-4" />
+                                    Choose files
+                                </Button>
+                                <span className="text-sm text-muted-foreground">or drop files here</span>
+                                <Button
+                                    type="submit"
+                                    disabled={data.files.length === 0 || processing}
+                                    className="ml-auto"
+                                >
+                                    {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
+                                    Add documents
+                                </Button>
+                            </div>
                             {data.files.length > 0 && (
-                                <span className="text-sm text-muted-foreground">
+                                <p className="text-sm text-muted-foreground">
                                     {data.files.length} file{data.files.length !== 1 ? 's' : ''} selected
                                     {data.files.length <= 3
                                         ? `: ${data.files.map((f) => f.name).join(', ')}`
                                         : ''}
-                                </span>
+                                </p>
                             )}
-                            <Button type="submit" disabled={data.files.length === 0 || processing}>
-                                {processing ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-                                Add documents
-                            </Button>
                             {(() => {
                                 const fileErrorKey = Object.keys(errors).find((k) =>
                                     k.startsWith('files'),
                                 );
                                 return fileErrorKey ? (
-                                    <p className="w-full text-sm text-destructive">
+                                    <p className="text-sm text-destructive">
                                         {(errors as Record<string, string>)[fileErrorKey]}
                                     </p>
                                 ) : null;
