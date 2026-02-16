@@ -154,10 +154,9 @@ export default function Index({ knowledgeFiles }: Props) {
                                             <FileText className="size-5 text-muted-foreground" />
                                             <div>
                                                 <p className="font-medium">{file.name}</p>
-                                                <p className="text-xs text-muted-foreground">
-                                                    {file.chunks_count} sections
-                                                    {file.error_message && ` · ${file.error_message}`}
-                                                </p>
+                                                {file.error_message && (
+                                                    <p className="text-xs text-destructive">{file.error_message}</p>
+                                                )}
                                                 <p className="mt-1 text-xs text-muted-foreground">
                                                     Added: {formatDateTime(file.created_at)}
                                                     {' · '}
