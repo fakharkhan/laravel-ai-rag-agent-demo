@@ -30,11 +30,11 @@ export function AppSidebar() {
     const mainNavItems: NavItem[] = [
         { title: 'Dashboard', href: dashboard(), icon: LayoutGrid },
     ];
-    if (routes?.admin?.knowledgeFiles?.index) {
-        mainNavItems.push({ title: 'Your documents', href: routes.admin.knowledgeFiles.index, icon: Upload });
-    }
     if (routes?.admin?.chatConfig?.index) {
         mainNavItems.push({ title: 'Assistant settings', href: routes.admin.chatConfig.index, icon: Settings });
+    }
+    if (routes?.admin?.knowledgeFiles?.index) {
+        mainNavItems.push({ title: 'Your documents', href: routes.admin.knowledgeFiles.index, icon: Upload });
     }
     if (routes?.chat?.index) {
         mainNavItems.push({ title: 'Chat', href: routes.chat.index, icon: MessageSquare });
