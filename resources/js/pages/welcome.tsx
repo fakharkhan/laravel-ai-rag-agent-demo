@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { MessageSquare, BookOpen, Settings, Sparkles } from 'lucide-react';
+import { MessageSquare, BookOpen, Settings, Sparkles, MessageSquarePlus } from 'lucide-react';
 import { dashboard, login, register } from '@/routes';
 import type { SharedData } from '@/types';
 
@@ -69,7 +69,7 @@ export default function Welcome({
                             </span>
                         </h1>
                         <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-                            Upload documents, configure your assistant, and get answers grounded in your own content. Each account has its own private knowledge base and chat settings.
+                            Upload documents, configure your assistant, and get answers grounded in your own content. Create multiple chats, toggle memory on or off, and pick up where you left off from your conversation history.
                         </p>
                         {!auth.user && (
                             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -89,7 +89,7 @@ export default function Welcome({
                         )}
                     </section>
 
-                    <section className="mt-24 grid gap-8 sm:grid-cols-3">
+                    <section className="mt-24 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
                             <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-900/40">
                                 <BookOpen className="size-6 text-indigo-600 dark:text-indigo-400" />
@@ -121,6 +121,17 @@ export default function Welcome({
                             </h2>
                             <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
                                 Ask questions and get streaming answers that use your uploaded docs when relevant.
+                            </p>
+                        </div>
+                        <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
+                            <div className="mb-4 flex size-12 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/40">
+                                <MessageSquarePlus className="size-6 text-amber-600 dark:text-amber-400" />
+                            </div>
+                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                Multiple chats &amp; memory
+                            </h2>
+                            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+                                Create new chats, browse your conversation history in the sidebar, and toggle memory to save or start fresh.
                             </p>
                         </div>
                     </section>
